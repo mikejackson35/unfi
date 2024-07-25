@@ -24,6 +24,7 @@ chart_year = df.groupby(['Year','MonthYear'])[['Sales']].sum().reset_index()
 chart_size = df.groupby(['Year','MonthYear','Size'])[['Sales']].sum().sort_values(['Year','MonthYear','Size'],ascending=[True,True,False]).reset_index()
 chart_channel = df.groupby(['Year','MonthYear','Segment'])[['Sales']].sum().sort_values(['Year','MonthYear','Segment'],ascending=[True,True,False]).reset_index()
 
+
 col, col1, col2, col3 = st.columns(4)
 
 with col:
@@ -47,25 +48,27 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     fig = px.bar(chart_year, x='MonthYear', y='Sales',
-                color='Year', title='Month / Year', width=350, height=350,
-                text_auto='.3s', labels={'Sales':'','MonthYear':''},template='plotly_white')
-    fig.update_yaxes(showticklabels=False)
+                color='Year', title='Month / Year', width=430, height=350,
+                text_auto='.3s', labels={'Sales':'','MonthYear':''},template='presentation')
+    fig.update_yaxes(showticklabels=False,showgrid=False)
     fig.update_layout(showlegend=False, title_x=0.05)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig)
 
 with col2:
     fig2 = px.bar(chart_size, x='MonthYear', y='Sales',
-             color='Size', title='Bag Size', width=350, height=350,
-             labels={'Sales':'','Size':'', 'MonthYear':''},template='plotly_white')
+            color='Size', title='Bag Size', width=450, height=350,
+            labels={'Sales':'','Size':'', 'MonthYear':''},template='presentation')
+    fig2.update_yaxes(showgrid=False)
     fig2.update_layout(legend=dict(orientation='h', y=1.2, x=0.25), title_x=0.05)
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2)
 
 with col3:
     fig3 = px.bar(chart_channel, x='MonthYear', y='Sales',
-             color='Segment', title='Channel', width=350, height=350,
-             labels={'Sales':'','MonthYear':'','Channel':''},template='plotly_white')
-    fig3.update_layout(showlegend=False,legend=dict(orientation='h', y=1.2, x=0.25), title_x=0.05)
-    st.plotly_chart(fig3, use_container_width=True)
+            color='Segment', title='Segment', width=450, height=350,
+            labels={'Sales':'','MonthYear':'','Channel':'','Segment':''},template='presentation')
+    fig3.update_yaxes(showgrid=False)
+    fig3.update_layout(legend=dict(orientation='h',y=1.6,x=.1))
+    st.plotly_chart(fig3)
 
 
 st.write('<small>downloadable clean data',unsafe_allow_html=True)
@@ -76,28 +79,13 @@ df_container = st.container(border=True)
 with df_container:
     st.dataframe(df,use_container_width=True, height=250)
 
-# st.write('#')
-
-# col1, col2, col3 = st.columns(3)
-
-# with col1:
-#     fig = px.bar(chart_year, x='MonthYear', y='Sales',
-#                 color='Year', title='Month / Year', width=350, height=350,
-#                 text_auto='.3s', labels={'Sales':'','MonthYear':''},template='plotly_white')
-#     fig.update_yaxes(showticklabels=False)
-#     fig.update_layout(showlegend=False, title_x=0.05)
-#     st.plotly_chart(fig, use_container_width=True)
-
-# with col2:
-#     fig2 = px.bar(chart_size, x='MonthYear', y='Sales',
-#              color='Size', title='Bag Size', width=350, height=350,
-#              labels={'Sales':'','Size':'', 'MonthYear':''},template='plotly_white')
-#     fig2.update_layout(legend=dict(orientation='h', y=1.2, x=0.25), title_x=0.05)
-#     st.plotly_chart(fig2, use_container_width=True)
-
-# with col3:
-#     fig3 = px.bar(chart_channel, x='MonthYear', y='Sales',
-#              color='Channel', title='Channel', width=350, height=350,
-#              labels={'Sales':'','MonthYear':'','Channel':''},template='plotly_white')
-#     fig3.update_layout(legend=dict(orientation='h', y=1.2, x=0.25), title_x=0.05)
-#     st.plotly_chart(fig3, use_container_width=True)
+# ---- REMOVE UNWANTED STREAMLIT STYLING ----
+hide_st_style = """
+            <style>
+            Main Menu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+            
+st.markdown(hide_st_style, unsafe_allow_html=True)
