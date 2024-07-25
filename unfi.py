@@ -52,7 +52,7 @@ with col1:
                 text_auto='.3s', labels={'Sales':'','MonthYear':''},template='presentation')
     fig.update_yaxes(showticklabels=False,showgrid=False)
     fig.update_layout(showlegend=False, title_x=0.05)
-    st.plotly_chart(fig)
+    st.plotly_chart(fig, config=config)
 
 with col2:
     fig2 = px.bar(chart_size, x='MonthYear', y='Sales',
@@ -60,7 +60,7 @@ with col2:
             labels={'Sales':'','Size':'', 'MonthYear':''},template='presentation')
     fig2.update_yaxes(showgrid=False)
     fig2.update_layout(legend=dict(orientation='h', y=1.2, x=0.25), title_x=0.05)
-    st.plotly_chart(fig2)
+    st.plotly_chart(fig2, config=config)
 
 with col3:
     fig3 = px.bar(chart_channel, x='MonthYear', y='Sales',
@@ -68,7 +68,7 @@ with col3:
             labels={'Sales':'','MonthYear':'','Channel':'','Segment':''},template='presentation')
     fig3.update_yaxes(showgrid=False)
     fig3.update_layout(legend=dict(orientation='h',y=1.6,x=.1))
-    st.plotly_chart(fig3)
+    st.plotly_chart(fig3, config=config)
 
 
 st.write('<small>downloadable clean data',unsafe_allow_html=True)
