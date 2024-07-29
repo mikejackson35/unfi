@@ -11,7 +11,8 @@ config = {'displayModeBar': False}
 alt.themes.enable("dark")
 
 
-df = pd.read_csv('unfi_clean.csv')
+# df = pd.read_csv('unfi_clean.csv')
+df = pd.read_excel(r'unfi_clean.xlsx')
 df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','Brand','UNFI Published Wholesale'], inplace=True)
 df = df[['MonthYear','Region','Channel','Segment','Chain Name','Customer Name','City','State','Warehouse','Prod #','Description','Pack','Size','Units','Sales','Year']]
 
