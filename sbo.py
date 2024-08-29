@@ -85,43 +85,45 @@ month = st.sidebar.selectbox(
     ))
 
 st.sidebar.write('#')
-sales_path = st.sidebar.file_uploader('...then drop your file')
+sales_path = st.sidebar.file_uploader('...then drop your file')                     # File uploader
 
 st.write('#')
-if sales_path is not None:
+if sales_path is not None:                                                          # If file is uploaded
 
     raw_sbo_report = pd.read_excel(sales_path)
     with st.expander('Click to see original data'):
-        st.dataframe(raw_sbo_report, height=500, use_container_width=True)
+        st.dataframe(raw_sbo_report, height=500, use_container_width=True)          # Display original data
 
-    df = pd.read_excel(sales_path,skiprows=12, usecols=use_cols)
+    df = pd.read_excel(sales_path,skiprows=12, usecols=use_cols)                    # Get original data without blank headers, filter columns   
 
-    df.dropna(subset=['Customer Name'], inplace=True)
-    df['Chain Name'].fillna(df['Customer Name'], inplace=True)
+    # CLEAN UNFI SBO REPORT
+    df.dropna(subset=['Customer Name'], inplace=True)                               # Drop rows with missing Customer Name
+    df['Chain Name'].fillna(df['Customer Name'], inplace=True)                      # Fill missing Chain Name with Customer Name
     df.rename(columns = {'Channel':'Segment','MFG PROD CD':'MFG #',
-                         'UNFI Published Wholesale':'UNFI Whlesle'}, inplace = True)
+                         'UNFI Published Wholesale':'UNFI Whlesle'}, inplace = True)  # Rename columns
     
-    df['Prod #'] = df['Prod #'].astype(int).astype(str)
+    df['Prod #'] = df['Prod #'].astype(int).astype(str)                             # Convert Prod # to string
     
-    df['Size'] = df['Size'].apply(clean_size).convert_dtypes()
-    df['Channel'] = df['Segment'].apply(categorize)
+    df['Size'] = df['Size'].apply(clean_size).convert_dtypes()                      # Clean Size column
+    df['Channel'] = df['Segment'].apply(categorize)                                 # Categorize Channel column                           
 
-    df['Chain Name'] = df['Chain Name'].str.title()
-    df['Customer Name'] = df['Customer Name'].str.title()
-    df['Address'] = df['Address'].str.title()
-    df['City'] = df['City'].str.title()
-    df['Description'] = df['Description'].str.title()
+    df['Chain Name'] = df['Chain Name'].str.title()                                 # Title case for Chain Name
+    df['Customer Name'] = df['Customer Name'].str.title()                           # Title case for Customer Name 
+    df['Address'] = df['Address'].str.title()                                       # Title case for Address
+    df['City'] = df['City'].str.title()                                             # Title case for City
+    df['Description'] = df['Description'].str.title()                               # Title case for Description
 
-    df['Month'] = month
-    df['MonthNum'] =  df['Month'].apply(get_month_num)
-    df['Year'] = str(2024)
-    df['MonthYear'] = df['MonthNum'].astype(str).str.zfill(2) + '-' + df['Year'].astype(str)
+    df['Month'] = month                                                             # Add Month column
+    df['MonthNum'] =  df['Month'].apply(get_month_num)                              # Add MonthNum column
+    df['Year'] = str(2024)                                                          # Add Year column
+    df['MonthYear'] = df['MonthNum'] \
+        .astype(str).str.zfill(2) + '-' + df['Year'].astype(str)                    # Finish MonthYear column
 
     st.write('#')
 
     df = df[['Month','Year','Region','Channel','Segment','Chain Name','Customer Name',
             'City','State','Warehouse','MFG #','Prod #','Description','Pack',
-            'Size','UNFI Whlesle','Sales','Units']]
+            'Size','UNFI Whlesle','Sales','Units']]                                 # Reorder columns
 
 
     ## DOWNLOAD CSV BUTTON ###
@@ -129,40 +131,40 @@ if sales_path is not None:
     def convert_df(df):
         df = df[['Month','Year','Region','Channel','Segment','Chain Name','Customer Name',
                     'City','State','Warehouse','MFG #','Prod #','Description','Pack',
-                    'Size','UNFI Whlesle','Sales','Units']]
+                    'Size','UNFI Whlesle','Sales','Units']]                        
         
         return df.to_csv(index=False).encode('utf-8')
-    csv = convert_df(df)
+    csv = convert_df(df)                                                            # convert to CSV for download
 
     st.download_button(
         label="Download as CSV",
         data=csv,
         file_name='Clean SBO Report.csv',
         mime='text/csv',
-    )
+    )                                                                               # Download button
     
-    st.dataframe(df, height=400)
+    st.dataframe(df, height=400)                                                    # Display cleaned data
 
     st.write('#')
     st.write('Insights...')
 
     template = 'presentation'
-    tab1, tab2, tab3 = st.tabs(['Customer','Segment','SKU / Size'])
+    tab1, tab2, tab3 = st.tabs(['Customer','Segment','SKU / Size'])                 # Tabs for bar charts           
     
-    with tab1:
+    with tab1:                                                                      # Bar chart by Chain Name
         chart_df = df.groupby(['Chain Name','Segment']).agg({'Sales':'sum','Units':'sum'}).reset_index().sort_values('Sales',ascending=False)[:15]
         st.plotly_chart(px.bar(chart_df, x='Chain Name', y='Sales', title='Sales by Chain Name',
                             text_auto='.2s', labels={'Sales':'Total Sales ($)'},
                             height=400, color='Segment',template=template).update_yaxes(showgrid=False).update_layout(legend=dict(title='', orientation='h', x = .4, y=1.1)),
                             use_container_width=True)
-    with tab2:
+    with tab2:                                                                      # Bar chart by Segment
         chart_df = df.groupby('Segment').agg({'Sales':'sum','Units':'sum'}).reset_index().sort_values('Sales',ascending=False)[:10]
         st.plotly_chart(px.bar(chart_df, x='Segment', y='Sales', title='Sales by Segment',
                             text_auto='.2s', labels={'Sales':'Total Sales ($)'},
                             height=400,template=template).update_yaxes(showgrid=False),
                             use_container_width=True)
         
-    with tab3:
+    with tab3:                                                                      # Bar chart by Product
         chart_df = df.groupby(['Prod #','Size'])[['Sales']].sum().reset_index().sort_values('Sales',ascending=False)[:15]
         st.plotly_chart(px.bar(chart_df, x='Prod #', y='Sales', title='Sales by Product',
                             text_auto='.2s', color='Size', labels={'Sales':'Total Sales ($)'},
@@ -178,4 +180,4 @@ hide_st_style = """
             </style>
             """
             
-st.markdown(hide_st_style, unsafe_allow_html=True)
+st.markdown(hide_st_style, unsafe_allow_html=True)                                  # Hide Streamlit footer

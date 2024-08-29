@@ -13,6 +13,7 @@ alt.themes.enable("dark")
 with open(r"styles/main.css") as f:
     st.markdown("<style>{}</style>".format(f.read()), unsafe_allow_html=True)
 
+# get data from unfi_sbo.xlsx and clean
 df = pd.read_excel(r"C:\Users\mikej\Desktop\unfi\unfi_sbo.xlsx")
 df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','Brand','UNFI Published Wholesale','Grand Total'], inplace=True)
 df = df[['MonthYear','Region','Channel','Segment','Chain Name','Customer Name','City','State','Warehouse','Prod #','Description','Pack','Size','Units','Sales','Year']]
@@ -20,10 +21,11 @@ df = df[['MonthYear','Region','Channel','Segment','Chain Name','Customer Name','
 df['Year'] = df['Year'].astype(str)
 df['Prod #'] = df['Prod #'].astype(str)
 
-# df = [df['Year'] > '2023']
-
+# summary stats
 ytd = df[df['Year'] > '2023']['Sales'].sum()
 custs = df[df['Year'] > '2023']['Customer Name'].nunique()
+
+# dataframes for bar charts
 chart_year = df[df['Year'] > '2023'].groupby(['Year','MonthYear'])[['Sales']].sum().reset_index()
 chart_size = df[df['Year'] > '2023'].groupby(['Year','MonthYear','Size'])[['Sales']].sum().sort_values(['Year','MonthYear','Size'],ascending=[True,True,False]).reset_index()
 chart_channel = df[(df['Year'] > '2023') & (df['Segment']!='All Others')].groupby(['MonthYear','Segment'],as_index=False)[['Sales']].sum().sort_values(['MonthYear', 'Sales'],ascending=[True,False])
@@ -32,6 +34,7 @@ chart_channel = df[(df['Year'] > '2023') & (df['Segment']!='All Others')].groupb
 
 st.write('#')
 
+# TOP ROW
 # with col:
 col, blank, col1 = st.columns([1,.5,5])
 with col:
@@ -74,7 +77,7 @@ with col1:
             st.plotly_chart(fig3,use_container_width=True,config = config) 
         "#"
 
-
+# SECOND ROW
 st.write('<small>downloadable clean data',unsafe_allow_html=True)
 
 # with st.expander('Click to see full data'):
