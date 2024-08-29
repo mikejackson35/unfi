@@ -10,66 +10,69 @@ st.set_page_config(layout="wide")
 config = {'displayModeBar': False}
 alt.themes.enable("dark")
 
+with open(r"styles/main.css") as f:
+    st.markdown("<style>{}</style>".format(f.read()), unsafe_allow_html=True)
 
-df = pd.read_csv('unfi_clean.csv')
-# df = pd.read_excel(r'unfi_clean.xlsx')
-df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','Brand','UNFI Published Wholesale'], inplace=True)
+df = pd.read_excel(r"C:\Users\mikej\Desktop\unfi\unfi_sbo.xlsx")
+df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','Brand','UNFI Published Wholesale','Grand Total'], inplace=True)
 df = df[['MonthYear','Region','Channel','Segment','Chain Name','Customer Name','City','State','Warehouse','Prod #','Description','Pack','Size','Units','Sales','Year']]
 
 df['Year'] = df['Year'].astype(str)
 df['Prod #'] = df['Prod #'].astype(str)
 
+# df = [df['Year'] > '2023']
+
 ytd = df[df['Year'] > '2023']['Sales'].sum()
 custs = df[df['Year'] > '2023']['Customer Name'].nunique()
-chart_year = df.groupby(['Year','MonthYear'])[['Sales']].sum().reset_index()
-chart_size = df.groupby(['Year','MonthYear','Size'])[['Sales']].sum().sort_values(['Year','MonthYear','Size'],ascending=[True,True,False]).reset_index()
-chart_channel = df.groupby(['Year','MonthYear','Segment'])[['Sales']].sum().sort_values(['Year','MonthYear','Segment'],ascending=[True,True,False]).reset_index()
+chart_year = df[df['Year'] > '2023'].groupby(['Year','MonthYear'])[['Sales']].sum().reset_index()
+chart_size = df[df['Year'] > '2023'].groupby(['Year','MonthYear','Size'])[['Sales']].sum().sort_values(['Year','MonthYear','Size'],ascending=[True,True,False]).reset_index()
+chart_channel = df[(df['Year'] > '2023') & (df['Segment']!='All Others')].groupby(['MonthYear','Segment'],as_index=False)[['Sales']].sum().sort_values(['MonthYear', 'Sales'],ascending=[True,False])
 
 
-col, col1, col2, col3 = st.columns(4)
-
-with col:
-    st.markdown('<h1>UNFI</h1>',unsafe_allow_html=True)
-
-with col1:
-    st.write('#')
-    st.markdown('<h5>YTD: ${:,.0f}'.format(ytd),unsafe_allow_html=True)
-
-with col2:
-    st.write('#')
-    st.markdown('<h5>Customers: {:,.0f}'.format(custs),unsafe_allow_html=True)
-
-with col3:
-    st.write('#')
-    st.markdown('<h5>SKUs: {:,.0f}'.format(df['Prod #'].nunique()),unsafe_allow_html=True)
 
 st.write('#')
 
-col1, col2, col3 = st.columns(3)
+# with col:
+col, blank, col1 = st.columns([1,.5,5])
+with col:
+      st.markdown('<h1>UNFI<br><br></h1>',unsafe_allow_html=True)
+      st.markdown('<h5>YTD: ${:,.0f}'.format(ytd),unsafe_allow_html=True)
+      st.markdown('<h5>Customers: {:,.0f}'.format(custs),unsafe_allow_html=True)
+      st.markdown('<h5>SKUs: {:,.0f}'.format(df['Prod #'].nunique()),unsafe_allow_html=True)
 
 with col1:
-    fig = px.bar(chart_year, x='MonthYear', y='Sales',
-                color='Year', title='Month / Year', width=430, height=350,
-                text_auto='.3s', labels={'Sales':'','MonthYear':''},template='presentation')
-    fig.update_yaxes(showticklabels=False,showgrid=False)
-    fig.update_layout(showlegend=False, title_x=0.05)
-    st.plotly_chart(fig, config=config)
+        fig = px.bar(chart_year, x='MonthYear', y='Sales',
+                    color='Year', title='Month / Year', height=350,
+                    text_auto='.3s', labels={'Sales':'','MonthYear':''},template='presentation')
+        fig.update_yaxes(showgrid=False)
+        fig.update_layout(showlegend=False, title_x=0.5, title_y=.88)
+        #     st.plotly_chart(fig, config=config,use_container_width=True)
 
-with col2:
-    fig2 = px.bar(chart_size, x='MonthYear', y='Sales',
-            color='Size', title='Bag Size', width=450, height=350,
-            labels={'Sales':'','Size':'', 'MonthYear':''},template='presentation')
-    fig2.update_yaxes(showgrid=False)
-    fig2.update_layout(legend=dict(orientation='h', y=1.2, x=0.25), title_x=0.05)
-    st.plotly_chart(fig2, config=config)
+        # with col2:
+        fig2 = px.bar(chart_size, x='MonthYear', y='Sales',
+                color='Size', title='Bag Size', height=350,
+                labels={'Sales':'','Size':'', 'MonthYear':''},template='plotly_dark')
+        fig2.update_yaxes(showgrid=False)
+        fig2.update_layout(legend=dict(orientation='h', y=1.85,x=.39), title_x=0.5, title_y=.88)
+        #     st.plotly_chart(fig2, config=config,use_container_width=True)
 
-with col3:
-    fig3 = px.bar(chart_channel, x='MonthYear', y='Sales',
-            color='Segment', title='Segment', width=450, height=350,
-            labels={'Sales':'','MonthYear':'','Channel':'','Segment':''},template='presentation')
-    fig3.update_yaxes(showgrid=False)
-    fig3.update_layout(legend=dict(orientation='h',y=1.6,x=.1))
-    st.plotly_chart(fig3, config=config)
+        # with col3:
+        fig3 = px.bar(chart_channel, x='MonthYear', y='Sales',
+                color='Segment', title='Segment', height=350,
+                labels={'Sales':'','MonthYear':'','Channel':'','Segment':''},template='presentation',
+                hover_name='Segment')
+        fig3.update_yaxes(showgrid=False)
+        fig3.update_layout(legend=dict(orientation='h',y=1.85), title_x=0.5, title_y=.88)
+#     st.plotly_chart(fig3, config=config, use_container_width=True)
+
+        tab1, tab2, tab3 = st.tabs(['by Month', 'by Product', "by Segment"])
+        with tab1:
+            st.plotly_chart(fig,use_container_width=True,config = config)
+        with tab2:
+            st.plotly_chart(fig2,use_container_width=True,config = config)
+        with tab3:
+            st.plotly_chart(fig3,use_container_width=True,config = config) 
+        "#"
 
 
 st.write('<small>downloadable clean data',unsafe_allow_html=True)

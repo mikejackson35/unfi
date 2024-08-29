@@ -33,11 +33,11 @@ def clean_size(size):
 # map categories to Grocery, Away From Home, Other
 def categorize(channel):
 
-    grocery_channels = ['Independents', 'SuperMarket Independent', 'SuperMarket Chain', 
+    grocery_categories = ['Independents', 'SuperMarket Independent', 'SuperMarket Chain', 
                           'Natural - Chain', 'SuperMarket']
     away_from_home_categories = ['Food Service', 'Alternative Channel']
 
-    if channel in grocery_channels:
+    if channel in grocery_categories:
         return 'Grocery'
     elif channel in away_from_home_categories:
         return 'Away From Home'
