@@ -14,8 +14,8 @@ with open(r"styles/main.css") as f:
     st.markdown("<style>{}</style>".format(f.read()), unsafe_allow_html=True)
 
 # get data from unfi_sbo.xlsx and clean
-df = pd.read_excel(r'C:\Users\mikej\Desktop\unfi\unfi_sbo.xlsx')
-df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','UNFI Published Wholesale','Grand Total'], inplace=True)
+df = pd.read_excel(r'C:\Users\mikej\Desktop\unfi\unfi_sbo.xlsx',sheetname='unfi_clean')
+df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','UNFI Published Wholesale', 'Grand Total'], inplace=True)
 df = df[['MonthYear','Region','Channel','Segment','Chain Name','Customer Name','City','State','Warehouse','Prod #','Description','Pack','Size','Units','Sales','Year']]
 
 df['Year'] = df['Year'].astype(str)
