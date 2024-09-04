@@ -15,7 +15,9 @@ with open(r"styles/main.css") as f:
 
 # get data from unfi_sbo.xlsx and clean
 df = pd.read_excel(r'unfi_sbo.xlsx',sheet_name='unfi_clean')
-df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','UNFI Published Wholesale', 'Grand Total'], inplace=True)
+# df = pd.read_csv(r'unfi_clean.csv')
+df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','UNFI Published Wholesale','Grand Total'], inplace=True)
+# df.drop(columns=['Month','Address','Zip Code','MFG PROD CD','UNFI Published Wholesale','Brand'], inplace=True)
 df = df[['MonthYear','Region','Channel','Segment','Chain Name','Customer Name','City','State','Warehouse','Prod #','Description','Pack','Size','Units','Sales','Year']]
 
 df['Year'] = df['Year'].astype(str)
