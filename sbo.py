@@ -121,17 +121,17 @@ if sales_path is not None:                                                      
 
     st.write('#')
 
-    df = df[['Month','Year','Region','Channel','Segment','Chain Name','Customer Name',
-            'City','State','Warehouse','MFG #','Prod #','Description','Pack',
-            'Size','UNFI Whlesle','Sales','Units']]                                 # Reorder columns
+    df = df[['Month','MonthNum','Year','Region','Segment','Chain Name','Customer Name',
+            'Address','City','State','Zip Code','Warehouse','MFG #','Prod #','Description','Pack',
+            'Size','UNFI Whlesle','Sales','Units','MonthYear','Channel']]                                 # Reorder columns
 
 
     ## DOWNLOAD CSV BUTTON ###
     @st.cache_data
     def convert_df(df):
-        df = df[['Month','Year','Region','Channel','Segment','Chain Name','Customer Name',
-                    'City','State','Warehouse','MFG #','Prod #','Description','Pack',
-                    'Size','UNFI Whlesle','Sales','Units']]                        
+        # df = df[['Month','Year','Region','Channel','Segment','Chain Name','Customer Name',
+        #             'City','State','Warehouse','MFG #','Prod #','Description','Pack',
+        #             'Size','UNFI Whlesle','Sales','Units']]                        
         
         return df.to_csv(index=False).encode('utf-8')
     csv = convert_df(df)                                                            # convert to CSV for download
